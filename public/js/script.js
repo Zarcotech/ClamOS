@@ -10,30 +10,42 @@ document.addEventListener('DOMContentLoaded', () => {
         hotbar.style.display = 'flex';
     }, 6000);
 
-    minimizeButton.addEventListener('click', () => {
-        window.classList.remove('show');
-    });
+    // Get window control buttons
+    const minimizeButton = document.querySelector('.minimize');
+    const maximizeButton = document.querySelector('.maximize');
+    const closeButton = document.querySelector('.close');
+    const spotifyWindow = document.getElementById('spotify-window');
 
-    maximizeButton.addEventListener('click', () => {
-        if (window.style.width === '100vw') {
-            window.style.width = initialWidth;
-            window.style.height = initialHeight;
-            window.style.top = '50px';
-            window.style.left = '100px';
-        } else {
-            initialWidth = window.style.width;
-            initialHeight = window.style.height;
-            window.style.width = '100vw';
-            window.style.height = '100vh';
-            window.style.top = '0';
-            window.style.left = '0';
-        }
-    });
+    // Only add event listeners if buttons exist
+    if (minimizeButton) {
+        minimizeButton.addEventListener('click', () => {
+            if (spotifyWindow) {
+                spotifyWindow.style.display = 'none';
+            }
+        });
+    }
 
-    closeButton.addEventListener('click', () => {
-        window.classList.remove('show');
-    });
+    if (maximizeButton) {
+        maximizeButton.addEventListener('click', () => {
+            if (spotifyWindow && spotifyWindow.style.width === '100vw') {
+                spotifyWindow.style.width = '';
+                spotifyWindow.style.height = '';
+                spotifyWindow.style.top = '50px';
+                spotifyWindow.style.left = '100px';
+            } else if (spotifyWindow) {
+                spotifyWindow.style.width = '100vw';
+                spotifyWindow.style.height = '100vh';
+                spotifyWindow.style.top = '0';
+                spotifyWindow.style.left = '0';
+            }
+        });
+    }
 
-
-    
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            if (spotifyWindow) {
+                spotifyWindow.style.display = 'none';
+            }
+        });
+    }
 });
