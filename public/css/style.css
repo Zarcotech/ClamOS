@@ -1,0 +1,104 @@
+@font-face {
+    font-family: 'Product Sans';
+    src: url("../fonts/ProductSansRegular.ttf");
+}
+
+:root {
+    --bg-color: #121212;
+    --text-color: #15ddc2;
+}
+
+body {
+    height: 100vh;
+    margin: 0;
+    font-family: 'Product Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+    text-align: center;
+    background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    color: whitesmoke;
+}
+
+.hotbar {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 30vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(43, 80, 80);
+    padding: 16px 0;
+    gap: 16px;
+    border-radius: 16px;
+    display: none;
+    color: rgb(212, 175, 175);
+}
+
+.hotbar-button {
+    justify-content: center;
+    gap: 16px;
+}
+
+.window-spotify {
+    /* Keep initial display values for visibility */
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+
+    position: absolute;
+    /* Crucial for moving the window */
+    width: 350px;
+    height: 500px;
+    background-color: #282828;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    resize: both;
+    /* Allows the user to resize the window */
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.window-header-spotify {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: linear-gradient(to bottom, #3a3a3a, #333333);
+    border-bottom: 1px solid #3a3a3a;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    cursor: move;
+    /* Change cursor to indicate it's draggable */
+    user-select: none;
+    /* Prevents text selection during drag */
+}
+
+.window-controls-spotify button {
+    background-color: transparent;
+    border: none;
+    color: #d0d0d0;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-left: 5px;
+    justify-content: right;
+}
+
+.window-spotify iframe {
+    width: 100%;
+    height: calc(100% - 38px);
+    border: none;
+}
