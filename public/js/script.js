@@ -16,6 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButton = document.querySelector('.close');
     const spotifyWindow = document.getElementById('spotify-window');
 
+    // Store original window state
+    let isMaximized = false;
+    let originalWidth = '350px';
+    let originalHeight = '500px';
+    let originalTop = '50px';
+    let originalLeft = '100px';
+
     // Only add event listeners if buttons exist
     if (minimizeButton) {
         minimizeButton.addEventListener('click', () => {
@@ -27,16 +34,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (maximizeButton) {
         maximizeButton.addEventListener('click', () => {
-            if (spotifyWindow && spotifyWindow.style.width === '100vw') {
-                spotifyWindow.style.width = '';
-                spotifyWindow.style.height = '';
-                spotifyWindow.style.top = '50px';
-                spotifyWindow.style.left = '100px';
-            } else if (spotifyWindow) {
-                spotifyWindow.style.width = '100vw';
-                spotifyWindow.style.height = '100vh';
-                spotifyWindow.style.top = '0';
-                spotifyWindow.style.left = '0';
+            if (spotifyWindow) {
+                if (isMaximized) {
+                    // Restore to original size
+                    spotifyWindow.style.width = originalWidth;
+                    spotifyWindow.style.height = originalHeight;
+                    spotifyWindow.style.top = originalTop;
+                    spotifyWindow.style.left = originalLeft;
+                    spotifyWindow.style.resize = 'both';
+                    isMaximized = false;
+                } else {
+                    // Save current size before maximizing (if manually resized)
+                    const computedStyle = window.getComputedStyle(spotifyWindow);
+                    if (spotifyWindow.style.width && spotifyWindow.style.width !== '100vw') {
+                        originalWidth = spotifyWindow.style.width;
+                    }
+                    if (spotifyWindow.style.height && spotifyWindow.style.height !== '100vh') {
+                        originalHeight = spotifyWindow.style.height;
+                    }
+                    if (spotifyWindow.style.top && spotifyWindow.style.top !== '0px') {
+                        originalTop = spotifyWindow.style.top;
+                    }
+                    if (spotifyWindow.style.left && spotifyWindow.style.left !== '0px') {
+                        originalLeft = spotifyWindow.style.left;
+                    }
+                    
+                    // Maximize
+                    spotifyWindow.style.width = '100vw';
+                    spotifyWindow.style.height = '100vh';
+                    spotifyWindow.style.top = '0';
+                    spotifyWindow.style.left = '0';
+                    spotifyWindow.style.resize = 'none';
+                    isMaximized = true;
+                }
             }
         });
     }
@@ -45,6 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
         closeButton.addEventListener('click', () => {
             if (spotifyWindow) {
                 spotifyWindow.style.display = 'none';
+                // Reset state when closing
+                isMaximized = false;
             }
         });
     }
