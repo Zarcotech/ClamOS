@@ -23,110 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalTop = '50px';
     let originalLeft = '100px';
 
-    // Window dragging functionality
+    // Window dragging functionality (using global system now)
     let isDragging = false;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
 
     const windowHeader = document.querySelector('.window-header-spotify');
     
     if (windowHeader && spotifyWindow) {
-        windowHeader.addEventListener('mousedown', (e) => {
-            if (isMaximized) return; // Don't allow dragging when maximized
-            
-            isDragging = true;
-            const rect = spotifyWindow.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
-            
-            // Prevent text selection during drag
-            e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging || isMaximized) return;
-            
-            const x = e.clientX - dragOffsetX;
-            const y = e.clientY - dragOffsetY;
-            
-            // Constrain to viewport
-            const maxX = window.innerWidth - spotifyWindow.offsetWidth;
-            const maxY = window.innerHeight - spotifyWindow.offsetHeight;
-            
-            spotifyWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
-            spotifyWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
-            spotifyWindow.style.position = 'fixed';
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                // Save current position
-                if (!isMaximized) {
-                    originalTop = spotifyWindow.style.top;
-                    originalLeft = spotifyWindow.style.left;
-                }
-            }
-        });
+        // Use global window management for Spotify too
+        setupWindow(spotifyWindow, windowHeader, 'spotify');
     }
 
-    // Only add event listeners if buttons exist
-    if (minimizeButton) {
-        minimizeButton.addEventListener('click', () => {
-            if (spotifyWindow) {
-                spotifyWindow.style.display = 'none';
-            }
-        });
-    }
-
-    if (maximizeButton) {
-        maximizeButton.addEventListener('click', () => {
-            if (spotifyWindow) {
-                if (isMaximized) {
-                    // Restore to original size
-                    spotifyWindow.style.width = originalWidth;
-                    spotifyWindow.style.height = originalHeight;
-                    spotifyWindow.style.top = originalTop;
-                    spotifyWindow.style.left = originalLeft;
-                    spotifyWindow.style.resize = 'both';
-                    isMaximized = false;
-                } else {
-                    // Save current size before maximizing (if manually resized)
-                    const computedStyle = window.getComputedStyle(spotifyWindow);
-                    if (spotifyWindow.style.width && spotifyWindow.style.width !== '100vw') {
-                        originalWidth = spotifyWindow.style.width;
-                    }
-                    if (spotifyWindow.style.height && spotifyWindow.style.height !== '100vh') {
-                        originalHeight = spotifyWindow.style.height;
-                    }
-                    if (spotifyWindow.style.top && spotifyWindow.style.top !== '0px') {
-                        originalTop = spotifyWindow.style.top;
-                    }
-                    if (spotifyWindow.style.left && spotifyWindow.style.left !== '0px') {
-                        originalLeft = spotifyWindow.style.left;
-                    }
-                    
-                    // Maximize
-                    spotifyWindow.style.width = '100vw';
-                    spotifyWindow.style.height = '100vh';
-                    spotifyWindow.style.top = '0';
-                    spotifyWindow.style.left = '0';
-                    spotifyWindow.style.resize = 'none';
-                    isMaximized = true;
-                }
-            }
-        });
-    }
-
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            if (spotifyWindow) {
-                spotifyWindow.style.display = 'none';
-                // Reset state when closing
-                isMaximized = false;
-            }
-        });
-    }
+    // Spotify window controls now handled by setupWindow function
 
     // BROWSER WINDOW FUNCTIONALITY
     const browserWindow = document.getElementById('browser-window');
@@ -344,71 +251,77 @@ Features: Windows, Terminal, Browser, Spotify
         });
     }
 
+    // Global window management system
+    let currentDraggingWindow = null;
+    let globalDragOffsetX = 0;
+    let globalDragOffsetY = 0;
+
+    // Single global mouse event listeners
+    document.addEventListener('mousemove', (e) => {
+        if (!currentDraggingWindow) return;
+        const x = e.clientX - globalDragOffsetX;
+        const y = e.clientY - globalDragOffsetY;
+        const maxX = window.innerWidth - currentDraggingWindow.offsetWidth;
+        const maxY = window.innerHeight - currentDraggingWindow.offsetHeight;
+        currentDraggingWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+        currentDraggingWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+    });
+
+    document.addEventListener('mouseup', () => {
+        currentDraggingWindow = null;
+    });
+
     // Generic window management function
-    function setupWindow(window, header, type) {
-        if (!window || !header) return;
+    function setupWindow(windowElement, header, type) {
+        if (!windowElement || !header) return;
         
         let isMaximized = false;
-        let isDragging = false;
-        let dragOffsetX = 0;
-        let dragOffsetY = 0;
         let originalWidth, originalHeight, originalTop, originalLeft;
 
         // Get window control buttons
-        const minimizeButton = window.querySelector('.minimize');
-        const maximizeButton = window.querySelector('.maximize');
-        const closeButton = window.querySelector('.close');
+        const minimizeButton = windowElement.querySelector('.minimize');
+        const maximizeButton = windowElement.querySelector('.maximize');
+        const closeButton = windowElement.querySelector('.close');
 
         // Dragging functionality
         header.addEventListener('mousedown', (e) => {
             if (isMaximized) return;
-            isDragging = true;
-            const rect = window.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
+            currentDraggingWindow = windowElement;
+            const rect = windowElement.getBoundingClientRect();
+            globalDragOffsetX = e.clientX - rect.left;
+            globalDragOffsetY = e.clientY - rect.top;
             e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging || isMaximized) return;
-            const x = e.clientX - dragOffsetX;
-            const y = e.clientY - dragOffsetY;
-            const maxX = window.innerWidth - window.offsetWidth;
-            const maxY = window.innerHeight - window.offsetHeight;
-            window.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
-            window.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
+            
+            // Bring window to front
+            windowElement.style.zIndex = Math.max(1000, parseInt(windowElement.style.zIndex || 1000) + 1);
         });
 
         // Window controls
         if (minimizeButton) {
             minimizeButton.addEventListener('click', () => {
-                window.style.display = 'none';
+                windowElement.style.display = 'none';
             });
         }
 
         if (maximizeButton) {
             maximizeButton.addEventListener('click', () => {
                 if (isMaximized) {
-                    window.style.width = originalWidth;
-                    window.style.height = originalHeight;
-                    window.style.top = originalTop;
-                    window.style.left = originalLeft;
-                    window.style.resize = 'both';
+                    windowElement.style.width = originalWidth;
+                    windowElement.style.height = originalHeight;
+                    windowElement.style.top = originalTop;
+                    windowElement.style.left = originalLeft;
+                    windowElement.style.resize = 'both';
                     isMaximized = false;
                 } else {
-                    originalWidth = window.style.width || window.offsetWidth + 'px';
-                    originalHeight = window.style.height || window.offsetHeight + 'px';
-                    originalTop = window.style.top || window.offsetTop + 'px';
-                    originalLeft = window.style.left || window.offsetLeft + 'px';
-                    window.style.width = '100vw';
-                    window.style.height = '100vh';
-                    window.style.top = '0';
-                    window.style.left = '0';
-                    window.style.resize = 'none';
+                    originalWidth = windowElement.style.width || windowElement.offsetWidth + 'px';
+                    originalHeight = windowElement.style.height || windowElement.offsetHeight + 'px';
+                    originalTop = windowElement.style.top || windowElement.offsetTop + 'px';
+                    originalLeft = windowElement.style.left || windowElement.offsetLeft + 'px';
+                    windowElement.style.width = '100vw';
+                    windowElement.style.height = '100vh';
+                    windowElement.style.top = '0';
+                    windowElement.style.left = '0';
+                    windowElement.style.resize = 'none';
                     isMaximized = true;
                 }
             });
@@ -416,7 +329,7 @@ Features: Windows, Terminal, Browser, Spotify
 
         if (closeButton) {
             closeButton.addEventListener('click', () => {
-                window.style.display = 'none';
+                windowElement.style.display = 'none';
                 isMaximized = false;
             });
         }
