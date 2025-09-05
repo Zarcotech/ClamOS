@@ -259,6 +259,7 @@ Features: Windows, Terminal, Browser, Spotify
     // Single global mouse event listeners
     document.addEventListener('mousemove', (e) => {
         if (!currentDraggingWindow) return;
+        e.preventDefault();
         const x = e.clientX - globalDragOffsetX;
         const y = e.clientY - globalDragOffsetY;
         const maxX = window.innerWidth - currentDraggingWindow.offsetWidth;
@@ -267,7 +268,17 @@ Features: Windows, Terminal, Browser, Spotify
         currentDraggingWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
     });
 
+    // Multiple event listeners to ensure we catch mouse release
     document.addEventListener('mouseup', () => {
+        currentDraggingWindow = null;
+    });
+    
+    document.addEventListener('mouseleave', () => {
+        currentDraggingWindow = null;
+    });
+
+    // Also handle touch events for mobile
+    document.addEventListener('touchend', () => {
         currentDraggingWindow = null;
     });
 
@@ -286,14 +297,27 @@ Features: Windows, Terminal, Browser, Spotify
         // Dragging functionality
         header.addEventListener('mousedown', (e) => {
             if (isMaximized) return;
+            
+            // Clear any existing dragging first
+            currentDraggingWindow = null;
+            
+            // Start new drag
             currentDraggingWindow = windowElement;
             const rect = windowElement.getBoundingClientRect();
             globalDragOffsetX = e.clientX - rect.left;
             globalDragOffsetY = e.clientY - rect.top;
             e.preventDefault();
+            e.stopPropagation();
             
             // Bring window to front
             windowElement.style.zIndex = Math.max(1000, parseInt(windowElement.style.zIndex || 1000) + 1);
+        });
+
+        // Additional safety: stop dragging if mouse leaves this window's header
+        header.addEventListener('mouseleave', (e) => {
+            if (currentDraggingWindow === windowElement && e.buttons !== 1) {
+                currentDraggingWindow = null;
+            }
         });
 
         // Window controls
