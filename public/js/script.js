@@ -250,51 +250,62 @@ Features: Windows, Terminal, Browser, Spotify
         });
     }
 
-    // Simple global dragging system
-    let isDragging = false;
-    let dragWindow = null;
-    let startX = 0;
-    let startY = 0;
-    let windowStartX = 0;
-    let windowStartY = 0;
+    // Robust dragging system with multiple safety measures
+    let dragState = {
+        active: false,
+        window: null,
+        startX: 0,
+        startY: 0,
+        windowStartX: 0,
+        windowStartY: 0
+    };
 
-    function startDrag(windowElement, e) {
-        isDragging = true;
-        dragWindow = windowElement;
-        startX = e.clientX;
-        startY = e.clientY;
-        windowStartX = parseInt(windowElement.style.left || 0);
-        windowStartY = parseInt(windowElement.style.top || 0);
-        document.body.style.userSelect = 'none';
-        e.preventDefault();
-    }
-
-    function stopDrag() {
-        isDragging = false;
-        dragWindow = null;
+    function stopDragging() {
+        dragState.active = false;
+        dragState.window = null;
         document.body.style.userSelect = '';
+        document.body.style.cursor = '';
     }
 
-    // Global mouse handlers
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging || !dragWindow) return;
+    function handleMouseMove(e) {
+        if (!dragState.active || !dragState.window) return;
         
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
+        const deltaX = e.clientX - dragState.startX;
+        const deltaY = e.clientY - dragState.startY;
         
-        let newX = windowStartX + deltaX;
-        let newY = windowStartY + deltaY;
+        let newX = dragState.windowStartX + deltaX;
+        let newY = dragState.windowStartY + deltaY;
         
         // Keep window within bounds
-        newX = Math.max(0, Math.min(newX, window.innerWidth - dragWindow.offsetWidth));
-        newY = Math.max(0, Math.min(newY, window.innerHeight - dragWindow.offsetHeight));
+        newX = Math.max(0, Math.min(newX, window.innerWidth - dragState.window.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - dragState.window.offsetHeight));
         
-        dragWindow.style.left = newX + 'px';
-        dragWindow.style.top = newY + 'px';
-    });
+        dragState.window.style.left = newX + 'px';
+        dragState.window.style.top = newY + 'px';
+    }
 
-    document.addEventListener('mouseup', stopDrag);
-    document.addEventListener('contextmenu', stopDrag);
+    // Multiple event listeners to ensure we always stop dragging
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', stopDragging);
+    document.addEventListener('mouseleave', stopDragging);
+    document.addEventListener('blur', stopDragging);
+    window.addEventListener('blur', stopDragging);
+    
+    // Escape key to force stop dragging
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dragState.active) {
+            console.log('ESC key pressed - stopping drag');
+            stopDragging();
+        }
+    });
+    
+    // Safety timeout - auto-stop dragging after 5 seconds
+    setInterval(() => {
+        if (dragState.active) {
+            console.log('Safety stop: dragging for too long');
+            stopDragging();
+        }
+    }, 5000);
 
     // Generic window management function
     function setupWindow(windowElement, header, type) {
@@ -312,11 +323,22 @@ Features: Windows, Terminal, Browser, Spotify
         header.addEventListener('mousedown', (e) => {
             if (isMaximized) return;
             
-            // Start dragging with new system
-            startDrag(windowElement, e);
+            // Start dragging with robust system
+            dragState.active = true;
+            dragState.window = windowElement;
+            dragState.startX = e.clientX;
+            dragState.startY = e.clientY;
+            dragState.windowStartX = parseInt(windowElement.style.left) || 0;
+            dragState.windowStartY = parseInt(windowElement.style.top) || 0;
+            
+            document.body.style.userSelect = 'none';
+            document.body.style.cursor = 'move';
             
             // Bring window to front
             windowElement.style.zIndex = Math.max(1000, parseInt(windowElement.style.zIndex || 1000) + 1);
+            
+            e.preventDefault();
+            e.stopPropagation();
         });
 
         // Window controls
