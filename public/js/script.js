@@ -23,8 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalTop = '50px';
     let originalLeft = '100px';
 
-    // Window dragging functionality (using global system now)
-    let isDragging = false;
+    // Window dragging functionality handled by global system now
 
     const windowHeader = document.querySelector('.window-header-spotify');
     
@@ -251,36 +250,51 @@ Features: Windows, Terminal, Browser, Spotify
         });
     }
 
-    // Global window management system
-    let currentDraggingWindow = null;
-    let globalDragOffsetX = 0;
-    let globalDragOffsetY = 0;
+    // Simple global dragging system
+    let isDragging = false;
+    let dragWindow = null;
+    let startX = 0;
+    let startY = 0;
+    let windowStartX = 0;
+    let windowStartY = 0;
 
-    // Single global mouse event listeners
-    document.addEventListener('mousemove', (e) => {
-        if (!currentDraggingWindow) return;
+    function startDrag(windowElement, e) {
+        isDragging = true;
+        dragWindow = windowElement;
+        startX = e.clientX;
+        startY = e.clientY;
+        windowStartX = parseInt(windowElement.style.left || 0);
+        windowStartY = parseInt(windowElement.style.top || 0);
+        document.body.style.userSelect = 'none';
         e.preventDefault();
-        const x = e.clientX - globalDragOffsetX;
-        const y = e.clientY - globalDragOffsetY;
-        const maxX = window.innerWidth - currentDraggingWindow.offsetWidth;
-        const maxY = window.innerHeight - currentDraggingWindow.offsetHeight;
-        currentDraggingWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
-        currentDraggingWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+    }
+
+    function stopDrag() {
+        isDragging = false;
+        dragWindow = null;
+        document.body.style.userSelect = '';
+    }
+
+    // Global mouse handlers
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !dragWindow) return;
+        
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        let newX = windowStartX + deltaX;
+        let newY = windowStartY + deltaY;
+        
+        // Keep window within bounds
+        newX = Math.max(0, Math.min(newX, window.innerWidth - dragWindow.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - dragWindow.offsetHeight));
+        
+        dragWindow.style.left = newX + 'px';
+        dragWindow.style.top = newY + 'px';
     });
 
-    // Multiple event listeners to ensure we catch mouse release
-    document.addEventListener('mouseup', () => {
-        currentDraggingWindow = null;
-    });
-    
-    document.addEventListener('mouseleave', () => {
-        currentDraggingWindow = null;
-    });
-
-    // Also handle touch events for mobile
-    document.addEventListener('touchend', () => {
-        currentDraggingWindow = null;
-    });
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('contextmenu', stopDrag);
 
     // Generic window management function
     function setupWindow(windowElement, header, type) {
@@ -298,26 +312,11 @@ Features: Windows, Terminal, Browser, Spotify
         header.addEventListener('mousedown', (e) => {
             if (isMaximized) return;
             
-            // Clear any existing dragging first
-            currentDraggingWindow = null;
-            
-            // Start new drag
-            currentDraggingWindow = windowElement;
-            const rect = windowElement.getBoundingClientRect();
-            globalDragOffsetX = e.clientX - rect.left;
-            globalDragOffsetY = e.clientY - rect.top;
-            e.preventDefault();
-            e.stopPropagation();
+            // Start dragging with new system
+            startDrag(windowElement, e);
             
             // Bring window to front
             windowElement.style.zIndex = Math.max(1000, parseInt(windowElement.style.zIndex || 1000) + 1);
-        });
-
-        // Additional safety: stop dragging if mouse leaves this window's header
-        header.addEventListener('mouseleave', (e) => {
-            if (currentDraggingWindow === windowElement && e.buttons !== 1) {
-                currentDraggingWindow = null;
-            }
         });
 
         // Window controls
