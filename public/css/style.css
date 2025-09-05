@@ -54,8 +54,7 @@ body {
 }
 
 .window-spotify {
-    /* Keep initial display values for visibility */
-    display: block;
+    display: none;
     opacity: 1;
     transform: scale(1);
 
