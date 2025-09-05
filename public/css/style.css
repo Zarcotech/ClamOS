@@ -58,8 +58,10 @@ body {
     opacity: 1;
     transform: scale(1);
 
-    position: absolute;
-    /* Crucial for moving the window */
+    position: fixed;
+    /* Fixed positioning for better control */
+    top: 50px;
+    left: 100px;
     width: 350px;
     height: 500px;
     background-color: #282828;

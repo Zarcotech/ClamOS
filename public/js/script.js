@@ -23,6 +23,53 @@ document.addEventListener('DOMContentLoaded', () => {
     let originalTop = '50px';
     let originalLeft = '100px';
 
+    // Window dragging functionality
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+
+    const windowHeader = document.querySelector('.window-header-spotify');
+    
+    if (windowHeader && spotifyWindow) {
+        windowHeader.addEventListener('mousedown', (e) => {
+            if (isMaximized) return; // Don't allow dragging when maximized
+            
+            isDragging = true;
+            const rect = spotifyWindow.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+            
+            // Prevent text selection during drag
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || isMaximized) return;
+            
+            const x = e.clientX - dragOffsetX;
+            const y = e.clientY - dragOffsetY;
+            
+            // Constrain to viewport
+            const maxX = window.innerWidth - spotifyWindow.offsetWidth;
+            const maxY = window.innerHeight - spotifyWindow.offsetHeight;
+            
+            spotifyWindow.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+            spotifyWindow.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+            spotifyWindow.style.position = 'fixed';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                // Save current position
+                if (!isMaximized) {
+                    originalTop = spotifyWindow.style.top;
+                    originalLeft = spotifyWindow.style.left;
+                }
+            }
+        });
+    }
+
     // Only add event listeners if buttons exist
     if (minimizeButton) {
         minimizeButton.addEventListener('click', () => {
