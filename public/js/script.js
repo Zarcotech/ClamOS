@@ -1,3 +1,49 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('terminal-input');
+    const outputDiv = document.getElementById('terminal-output');
+    outputDiv.style.fontFamily = 'Menlo, Monaco, "Liberation Mono", "Consolas", monospace';
+    outputDiv.style.background = '#1e1e1e';
+    outputDiv.style.color = '#eaeaea';
+    outputDiv.style.borderRadius = '8px';
+    outputDiv.style.padding = '18px';
+    outputDiv.style.boxShadow = '0 4px 24px rgba(0,0,0,0.25)';
+    outputDiv.style.minHeight = '300px';
+    outputDiv.style.maxHeight = '500px';
+    outputDiv.style.overflowY = 'auto';
+    input.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+            const command = input.value;
+            if (!command.trim()) return;
+            const cmdLine = document.createElement('div');
+            cmdLine.className = 'terminal-line';
+            cmdLine.innerHTML = '<span style="color:#43d17a">zidanharb@server1</span>:<span style="color:#6cb4ff">~</span> <span style="color:#eaeaea">$</span> ' + command;
+            outputDiv.appendChild(cmdLine);
+            try {
+                const res = await fetch('/api/terminal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                const data = await res.json();
+                const ansiRegex = /\x1b\[[0-9;]*m/g;
+                const cleanOutput = data.output.replace(ansiRegex, '').trim();
+                cleanOutput.split('\n').forEach(line => {
+                    const outLine = document.createElement('div');
+                    outLine.className = 'terminal-line';
+                    outLine.textContent = line;
+                    outputDiv.appendChild(outLine);
+                });
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+            } catch (err) {
+                const errLine = document.createElement('div');
+                errLine.className = 'terminal-line';
+                errLine.textContent = 'Error: ' + err;
+                outputDiv.appendChild(errLine);
+            }
+            input.value = '';
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -10,36 +56,29 @@ document.addEventListener('DOMContentLoaded', () => {
         hotbar.style.display = 'flex';
     }, 6000);
 
-    // Get window control buttons
     const minimizeButton = document.querySelector('.minimize');
     const maximizeButton = document.querySelector('.maximize');
     const closeButton = document.querySelector('.close');
     const spotifyWindow = document.getElementById('spotify-window');
 
-    // Store original window state
     let isMaximized = false;
     let originalWidth = '350px';
     let originalHeight = '500px';
     let originalTop = '50px';
     let originalLeft = '100px';
 
-    // Window dragging functionality handled by global system now
 
     const windowHeader = document.querySelector('.window-header-spotify');
     
     if (windowHeader && spotifyWindow) {
-        // Use global window management for Spotify too
         setupWindow(spotifyWindow, windowHeader, 'spotify');
     }
 
-    // Spotify window controls now handled by setupWindow function
 
-    // BROWSER WINDOW FUNCTIONALITY
     const browserWindow = document.getElementById('browser-window');
     const browserHeader = document.querySelector('.window-header-browser');
     setupWindow(browserWindow, browserHeader, 'browser');
 
-    // Browser navigation functionality
     const browserUrl = document.getElementById('browser-url');
     const browserFrame = document.getElementById('browser-frame');
     const browserGo = document.getElementById('browser-go');
@@ -106,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
         browserFrame.src = browserFrame.src;
     });
 
-    // TERMINAL WINDOW FUNCTIONALITY
     const terminalWindow = document.getElementById('terminal-window');
     const terminalHeader = document.querySelector('.window-header-terminal');
     setupWindow(terminalWindow, terminalHeader, 'terminal');
@@ -185,7 +223,7 @@ Music      Public       Templates    .bashrc      .profile`;
             return `ClamOS - A web-based operating system
 Version: 1.0
 Created with: HTML, CSS, JavaScript
-Features: Windows, Terminal, Browser, Spotify
+Features: Terminal, Browser, Spotify
 🐚 Welcome to ClamOS! 🐚`;
         }
     };
@@ -243,14 +281,12 @@ Features: Windows, Terminal, Browser, Spotify
         }
     });
 
-    // Focus terminal input when terminal window is clicked
     if (terminalWindow) {
         terminalWindow.addEventListener('click', () => {
             terminalInput.focus();
         });
     }
 
-    // Robust dragging system with multiple safety measures
     let dragState = {
         active: false,
         window: null,
@@ -276,7 +312,6 @@ Features: Windows, Terminal, Browser, Spotify
         let newX = dragState.windowStartX + deltaX;
         let newY = dragState.windowStartY + deltaY;
         
-        // Keep window within bounds
         newX = Math.max(0, Math.min(newX, window.innerWidth - dragState.window.offsetWidth));
         newY = Math.max(0, Math.min(newY, window.innerHeight - dragState.window.offsetHeight));
         
@@ -284,14 +319,12 @@ Features: Windows, Terminal, Browser, Spotify
         dragState.window.style.top = newY + 'px';
     }
 
-    // Multiple event listeners to ensure we always stop dragging
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', stopDragging);
     document.addEventListener('mouseleave', stopDragging);
     document.addEventListener('blur', stopDragging);
     window.addEventListener('blur', stopDragging);
     
-    // Escape key to force stop dragging
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && dragState.active) {
             console.log('ESC key pressed - stopping drag');
@@ -299,7 +332,6 @@ Features: Windows, Terminal, Browser, Spotify
         }
     });
     
-    // Safety timeout - auto-stop dragging after 5 seconds
     setInterval(() => {
         if (dragState.active) {
             console.log('Safety stop: dragging for too long');
@@ -307,23 +339,19 @@ Features: Windows, Terminal, Browser, Spotify
         }
     }, 5000);
 
-    // Generic window management function
     function setupWindow(windowElement, header, type) {
         if (!windowElement || !header) return;
         
         let isMaximized = false;
         let originalWidth, originalHeight, originalTop, originalLeft;
 
-        // Get window control buttons
         const minimizeButton = windowElement.querySelector('.minimize');
         const maximizeButton = windowElement.querySelector('.maximize');
         const closeButton = windowElement.querySelector('.close');
 
-        // Dragging functionality
         header.addEventListener('mousedown', (e) => {
             if (isMaximized) return;
             
-            // Start dragging with robust system
             dragState.active = true;
             dragState.window = windowElement;
             dragState.startX = e.clientX;
@@ -334,14 +362,12 @@ Features: Windows, Terminal, Browser, Spotify
             document.body.style.userSelect = 'none';
             document.body.style.cursor = 'move';
             
-            // Bring window to front
             windowElement.style.zIndex = Math.max(1000, parseInt(windowElement.style.zIndex || 1000) + 1);
             
             e.preventDefault();
             e.stopPropagation();
         });
 
-        // Window controls
         if (minimizeButton) {
             minimizeButton.addEventListener('click', () => {
                 windowElement.style.display = 'none';
