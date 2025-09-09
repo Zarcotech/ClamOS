@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!command.trim()) return;
             const cmdLine = document.createElement('div');
             cmdLine.className = 'terminal-line';
-            cmdLine.innerHTML = '<span style="color:#43d17a">zidanharb@server1</span>:<span style="color:#6cb4ff">~</span> <span style="color:#eaeaea">$</span> ' + command;
             outputDiv.appendChild(cmdLine);
             try {
                 const res = await fetch('/api/terminal', {
@@ -189,12 +188,12 @@ clam - Show ClamOS info`;
         },
         
         pwd: () => {
-            return '/home/user';
+            return '/home/clamos';
         },
         
         ls: () => {
             return `Desktop    Documents    Downloads    Pictures    Videos
-Music      Public       Templates    .bashrc      .profile`;
+Music      Public       Templates    .nitrogensr      .profile`;
         },
         
         cat: (args) => {
@@ -223,8 +222,8 @@ Music      Public       Templates    .bashrc      .profile`;
             return `ClamOS - A web-based operating system
 Version: 1.0
 Created with: HTML, CSS, JavaScript
-Features: Terminal, Browser, Spotify
-🐚 Welcome to ClamOS! 🐚`;
+Features: Terminal, Browser, Spotify, Settings
+ Welcome to ClamOS! `;
         }
     };
 
@@ -241,7 +240,7 @@ Features: Terminal, Browser, Spotify
         const command = parts[0].toLowerCase();
         const args = parts.slice(1);
         
-        addTerminalLine(`user@clamos:~$ ${input}`, 'terminal-command');
+        // addTerminalLine(`user@clamos:~$ ${input}`, 'terminal-command');
         
         if (command === '') return;
         
@@ -254,7 +253,7 @@ Features: Terminal, Browser, Spotify
                 result.split('\n').forEach(line => addTerminalLine(line));
             }
         } else {
-            addTerminalLine(`bash: ${command}: command not found`, 'terminal-error');
+            addTerminalLine(`nitrogen: ${command}: command not found`, 'terminal-error');
         }
     }
 

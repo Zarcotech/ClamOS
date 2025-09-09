@@ -11,12 +11,12 @@ except OSError:
 
 def terminal():
     import os
-    computer_name = str(os.environ.get("COMPUTERNAME", os.uname().nodename if hasattr(os, 'uname') else "N/A"))
+    computer_name = "user@clamos:~$"
     home_dir = os.path.expanduser(f"~{user_name}")
     os.chdir(home_dir)
     while True:
         try:
-            intake_full = input(Fore.GREEN + user_name + "@" + Fore.BLUE + computer_name + ":~" + Fore.WHITE + str(os.getcwd()) + " $ ")
+            intake_full = input(" ")
             input_split = intake_full.split()
             intake = input_split[0]
 

@@ -41,10 +41,15 @@
       <!-- Credits in loading.css -->
     </div>
     <div id="hotbar" class="hotbar">
-      <button class="hotbar-button" onclick="document.getElementById('browser-window').style.display = 'block'"><i class="fa-solid fa-window-maximize fa-lg"></i></button>
-      <button class="hotbar-button" onclick="document.getElementById('terminal-window').style.display = 'block'"><i class="fa-solid fa-terminal fa-lg"></i></button>
+      <button class="hotbar-button" onclick="document.getElementById('browser-window').style.display = 'block'"><i
+          class="fa-solid fa-window-maximize fa-lg"></i></button>
+      <button class="hotbar-button" onclick="document.getElementById('terminal-window').style.display = 'block'"><i
+          class="fa-solid fa-terminal fa-lg"></i></button>
       <button class="hotbar-button" onclick="document.getElementById('spotify-window').style.display = 'block'"><i
           class="fa-brands fa-spotify fa-lg"></i></button>
+      <button class="hotbar-button" onclick="document.getElementById('settings-window').style.display = 'block'">
+        <i class="fa-solid fa-sliders fa-lg"></i>
+      </button>
     </div>
   </div>
   <div class="windows" id="windows">
@@ -52,9 +57,11 @@
       <div class="window-header-spotify">
         <div>Spotify</div>
         <div class="window-controls-spotify">
-          <button class="maximize" id="maximize-spotify" style="color: #28c940;"><i class="fa-regular fa-square"></i></button>
-          <button class="minimize" id="minimize-spotify" style="color: #fdb92e;"><i class="fa-solid fa-minus"></i></button>
-          <button class="close"  id="close-spotify" style="color: #fc5c52;"><i class="fa-solid fa-xmark"></i></button>
+          <button class="maximize" id="maximize-spotify" style="color: #28c940;"><i
+              class="fa-regular fa-square"></i></button>
+          <button class="minimize" id="minimize-spotify" style="color: #fdb92e;"><i
+              class="fa-solid fa-minus"></i></button>
+          <button class="close" id="close-spotify" style="color: #fc5c52;"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="window-content-spotify">
           <!-- <iframe src="spotify.html" frameborder="0">
@@ -79,10 +86,12 @@
         <button id="browser-back" class="browser-btn" disabled><i class="fa-solid fa-arrow-left"></i></button>
         <button id="browser-forward" class="browser-btn" disabled><i class="fa-solid fa-arrow-right"></i></button>
         <button id="browser-refresh" class="browser-btn"><i class="fa-solid fa-rotate-right"></i></button>
-        <input type="text" id="browser-url" class="browser-url" placeholder="Enter URL..." value="https://www.google.com">
+        <input type="text" id="browser-url" class="browser-url" placeholder="Enter URL..."
+          value="https://www.google.com">
         <button id="browser-go" class="browser-btn-go">Go</button>
       </div>
-      <iframe id="browser-frame" src="https://www.google.com" style="width: 100%; height: calc(100% - 80px); border: none;"></iframe>
+      <iframe id="browser-frame" src="https://www.google.com"
+        style="width: 100%; height: calc(100% - 80px); border: none;"></iframe>
     </div>
 
     <!-- Terminal Window -->
